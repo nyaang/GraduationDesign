@@ -124,8 +124,8 @@ class NongGuanJia(threading.Thread):
                             qreply=[]
                             print("问题网页响应码不为200，为"+str(rcode))
                     else:
-                        k = int(recount) // 20 + 1  #单页的reply数不是20，待查证大回复数问题的有效性，TODO
-                        print(recount)
+                        k = int(recount) // 20 + 1  #不必要的循环，20不是每页加载的最大回复数，最多可加载的回复数待求证，TODO
+                        print("recount:"+str(recount))
                         for m in range(1, k+1):
                             rurl = 'http://ngjv4.laodao.so/ASHX/bbs_card.ashx?action=replylist&version=pc&ID=%s&pagSize=20&pagindex=%s' % (
                                 qid, m)
