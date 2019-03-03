@@ -1,5 +1,7 @@
-import requests,pymongo,threading,time,json,re,random,math
+import requests,pymongo,threading,time,json
 userids = json.load(open("userids.json",'r'))
+from fake_useragent import UserAgent
+ua = UserAgent()
 class NongGuanJia(threading.Thread):
     def __init__(self, userids):
         threading.Thread.__init__(self)
@@ -8,13 +10,13 @@ class NongGuanJia(threading.Thread):
     def run(self):
         for userid in self.userids:
             self.userid = userid
+            self.headers = {"User-Agent": ''}
             self.getfollow(self.userid)
     def getrequest(self, url):
-        #proxie = json.load(open("proxies.json", 'r'))
+        # 使用随机的user-agent
+        self.headers["User-Agent"] = ua.random
         try:
-            #proxy = random.choice(proxie)
-            #r = requests.get(url, timeout=10, proxies=proxy)
-            r = requests.get(url, timeout=3)
+            r = requests.get(url, headers=self.headers, timeout=3)
             print("requested from:" + url)
             return r
         except requests.exceptions.ReadTimeout:
@@ -174,8 +176,8 @@ class NongGuanJia(threading.Thread):
 
         if(len(self.User)>0):
           client = pymongo.MongoClient('127.0.0.1:27017')
-          db = client['Nongguanjia']
-          db['nongguanjianew'].insert_one(
+          db = client['NongGuanJia']
+          db['NongGuanJiaByUser'].insert_one(
             {"User": self.User,
             "Question":self.Question,
             "Reply":self.Reply})
@@ -204,6 +206,3 @@ def start(threadnum):
         linksqueue[i].start()
         i = i + 1
 start(3)
-
-
-
