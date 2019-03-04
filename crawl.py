@@ -29,17 +29,17 @@ class NongGuanJia(threading.Thread):
             return r
         except requests.exceptions.ReadTimeout:
             print("requests.exceptions.ReadTimeout")
-            time.sleep(1)
+            time.sleep(8)
             r = self.getrequest(url)
             return r
         except requests.exceptions.ConnectionError:
             print("requests.exceptions.ConnectionError")
-            time.sleep(1)
+            time.sleep(8)
             r = self.getrequest(url)
             return r
         except BaseException:
             print("error")
-            time.sleep(1)
+            time.sleep(8)
             r = self.getrequest(url)
             return r
 
@@ -61,7 +61,7 @@ class NongGuanJia(threading.Thread):
         return data
 
     def getfollow(self, userid):
-        nowtime = '2019-03-01T00:00:00'  # 最新的抓取时间
+        nowtime = '2019-03-04T14:50:00'  # 最新的抓取时间
         self.rcount = 0  # 回复数
         self.qcount = 0  # 问题数
         self.User = []
@@ -123,6 +123,7 @@ class NongGuanJia(threading.Thread):
                                     rtime = rdatas[j]["CreateTime"]  # 回复时间
                                     pro = rdatas[j]['Province']
                                     city = rdatas[j]['City']
+                                    keyword = rdatas[j]['keyword']
                                     zan = rdatas[j]["zan"]  # 赞
                                     cai = rdatas[j]["cai"]  # 踩
                                     qreply.append({"content": content,
@@ -130,6 +131,7 @@ class NongGuanJia(threading.Thread):
                                                    "ridentities": ridentities,
                                                    "province": pro,
                                                    "city": city,
+                                                   "keyword": keyword,
                                                    "time": rtime,
                                                    "zan": zan,
                                                    "cai": cai})
@@ -157,12 +159,16 @@ class NongGuanJia(threading.Thread):
                                         ridentities = rdatas[j]['identities']
                                         rtime = rdatas[j]["CreateTime"]
                                         pro = rdatas[j]['Province']
+                                        city = rdatas[j]['City']
+                                        keyword = rdatas[j]['keyword']
                                         zan = rdatas[j]["zan"]
                                         cai = rdatas[j]["cai"]
                                         qreply.append({"content": content,
                                                        "ruid": ruid,
                                                        "ridentities": ridentities,
                                                        "province": pro,
+                                                       "city": city,
+                                                       "keyword": keyword,
                                                        "time": rtime,
                                                        "zan": zan,
                                                        "cai": cai})
