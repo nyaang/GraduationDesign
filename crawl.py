@@ -4,7 +4,7 @@ import pymongo
 import threading
 import time
 import json
-userids = json.load(open("userids.json", 'r'))
+userids = json.load(open("users1.json", 'r'))
 ua = UserAgent()
 
 
@@ -12,7 +12,6 @@ class NongGuanJia(threading.Thread):
     def __init__(self, userids):
         threading.Thread.__init__(self)
         self.userids = userids
-        self.knum = 0
 
     def run(self):
         for userid in self.userids:
