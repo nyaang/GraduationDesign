@@ -4,8 +4,9 @@ import pymongo
 import threading
 import time
 import json
-userids = json.load(open("users1.json", 'r'))
+userids = json.load(open("./userids/userids1.json", 'r'))
 ua = UserAgent()
+errorids = []
 
 
 class NongGuanJia(threading.Thread):
@@ -68,20 +69,20 @@ class NongGuanJia(threading.Thread):
         self.Question = []
         crop = set()
         while (nowtime != 'none'):
-            print(nowtime)
+            # print(nowtime)
             url = 'http://ngjv4.laodao.so//ashx/news/sys_FriendNews.ashx?action=find4user&UserID=%s&lasttime=%s&pckey=&version=pc' % (
                 self.userid, nowtime)
             r = self.getrequest(url)
             data = self.decodejson(r, url)
             datas = data["datas"]
             code = data["code"]  # 响应码
-            print(code)
+            # print(code)
             if (len(datas) == 20):
                 nowtime = datas[-1]["UpdateDate"]
             else:
                 nowtime = 'none'  # 当前页以为最末页
             if (code == 200 and len(datas) > 0):
-                print("ok")
+                # print("ok")
                 for i in range(0, len(datas)):
                     qid = datas[i]['CardID']  # 问题Id
                     cropid = datas[i]["CropID"]  # 植物Id
@@ -103,7 +104,7 @@ class NongGuanJia(threading.Thread):
                         crop.add(cropid)
 
                     else:  # 抓问题
-                        print(qid)
+                        # print(qid)
                         self.qcount += 1
                         if (int(recount) <= 20):
                             rurl = 'http://ngjv4.laodao.so/ASHX/bbs_card.ashx?action=replylist&version=pc&ID=%s&pagSize=20&pagindex=1' % (
@@ -194,11 +195,22 @@ class NongGuanJia(threading.Thread):
         if(len(self.User) > 0):
             client = pymongo.MongoClient('127.0.0.1:27017')
             db = client['NongGuanJia']
-            db['NongGuanJiaByUser'].insert_one(
-                {"User": self.User,
-                 "Question": self.Question,
-                 "Reply": self.Reply})
-
+            try:
+                db['NongGuanJiaByUser'].insert_one(
+                    {"User": self.User,
+                     "Question": self.Question,
+                     "Reply": self.Reply})
+            except pymongo.errors.DocumentTooLarge:
+                errorids.append(self.userid)
+                print('error too long')
+                errorfile = open('usererror.json', 'w')
+                json.dump(
+                    errorids,
+                    errorfile,
+                    indent=4,
+                    sort_keys=False,
+                    ensure_ascii=False)
+                errorfile.close()
         userids.remove(self.userid)
         self.updateuserids()
 
