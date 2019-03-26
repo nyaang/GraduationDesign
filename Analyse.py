@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-from collections import Counter
 client = MongoClient()
 db = client['NongGuanJia']
 coll=db['NongGuanJiaByUser']
@@ -22,114 +21,166 @@ def printkeynum():
                 if len(reply['keyword'])>0:
                     for keyword in reply['keyword']:
                         document['keywordsnum']+=1
-                        #print(keyword['keyword'])
         print(document['keywordsnum'])
 def countdisaster():
     pcoll=db['NongGuanJiaByProblem']
     ynzz,zbbh=[],[]
     cursor=pcoll.find()
-    maxnum=0
+
     for document in cursor:
-        document['keywordNum'] = 0
-        if len(document['reply']) > 0:
-            for reply in document['reply']:
-                if len(reply['keyword']) > 0:
-                    for keyword in reply['keyword']:
-                         if keyword["type"]=="zbbh":
-                             zbbh.append(keyword["keyword"])
-                         elif keyword["type"]=="ynzz":
-                             ynzz.append(keyword["keyword"])
-                         document['keywordNum'] +=1
-        if document['keywordNum']>maxnum:
-            maxnum=document['keywordNum']
-    print(maxnum)
+        try:
+            if document['keywordNum']!=-1:
+                pass
+        except KeyError:
+            print("not set")
+            document['keywordNum'] = 0
+            if len(document['reply']) > 0:
+                for reply in document['reply']:
+                    if len(reply['keyword']) > 0:
+                        for keyword in reply['keyword']:
+                             if keyword["type"]=="zbbh":
+                                 zbbh.append(keyword["keyword"])
+                             elif keyword["type"]=="ynzz":
+                                 ynzz.append(keyword["keyword"])
+                             document['keywordNum'] +=1
+                pcoll.update_one(
+                    {"_id":document["_id"]},
+                    {
+                        "$set": {
+                            "keywordNum": document['keywordNum']
+                        }
+                    }
+
+                )
+            else:
+                pcoll.update_one(
+                    {"_id":document["_id"]},
+                    {
+                        "$set": {
+                            "keywordNum": 0
+                        }
+                    }
+
+                )
     print(len(zbbh))
     print(len(ynzz))
     newzbbh = list(set(zbbh))
     newynzz= list(set(ynzz))
     print(len(newzbbh))
     print(len(newynzz))
-#countdisaster()
-ucoll=db['NongGuanJiaByUser']
-cursor = ucoll.find()
-for document in cursor:
-    if document['User'][0]['province']=="山东省":
-        if document['User'][0]['city']=="潍坊市":
-            if len(document['Question'])>100:
-                print(document['User'][0]['uid']+" "+str(len(document['Question'])))
-# if keyword['keyword'] in dname:
-#     print("yes")
-# else:
-#     if keyword['type']=='ynzz':
-#         print("no"+str(keyword))
-#         print(document['qid'])
+def _100problemUser():
+    ucoll=db['NongGuanJiaByUser']
+    cursor = ucoll.find()
+    userdicts=[]
+    for document in cursor:
+        if document['User'][0]['province']=="山东省":
+            if document['User'][0]['city']=="潍坊市":
+                if len(document['Question'])>100:
+                    print(document['User'][0]['uid']+" "+str(len(document['Question'])))
+                    userdict={"id":document['User'][0]['uid'],"problemsnum":len(document['Question']),"problemids":[]}
+                    for question in document['Question']:
+                        if question['keywordNum']>0:
+                            userdict["problemids"].append(question['qid'])
+                    userdicts.append(userdict)
+                    import json
+                    todrawproblems = open("./todrawproblems.json", 'w')
+                    json.dump(
+                        userdicts,
+                        todrawproblems,
+                        indent=4,
+                        sort_keys=False,
+                        ensure_ascii=False)
+                    todrawproblems.close()
+#_100problemUser()
+def drawKeywordNum():
+    import matplotlib.pyplot as plt
+    from pylab import mpl
+    from pandas import Series
+    mpl.rcParams['font.sans-serif'] = ['FangSong']  # 指定默认字体
+    mpl.rcParams['axes.unicode_minus'] = False
 
-# result=Counter(dname)
-#print(result)
-# print(len(dname))
-# newqids = list(set(dname))
-# for document in cursor:
-#     print(dname.count(document["Name"]))
-# print(len(newqids))
+    client = MongoClient()
+    db = client['NongGuanJia']
+    pcoll = db['NongGuanJiaByProblem']
+    cursor = pcoll.find()
+    keywordNumList = []
+    for document in cursor:
+        keywordNumList.append(document['keywordNum'])
 
+    pdkeywordNumList = Series(keywordNumList)
+    mean_keywordNum = pdkeywordNumList.mean()
 
+    plt.xlim(0, 71)
+    plt.ylim(0, 400000)
+    plt.title("keyword数量分步")
+    plt.xlabel("keyword数量")
+    plt.ylabel("keyword数量分步数")
+    plt.hist(pdkeywordNumList, bins=60)
+    plt.vlines(mean_keywordNum, 0, 500, color='red', label='平均keyword数量', linewidth=1.5, linestyle='--')
+    plt.legend()
+    plt.show()
+def printKeyNum():
+    client = MongoClient()
+    db = client['NongGuanJia']
+    pcoll = db['NongGuanJiaByProblem']
+    cursor = pcoll.find()
+    keynumdict={}
+    for i in range(71):
+        keynumdict[i]=0
+    for document in cursor:
+        keynumdict[document['keywordNum']]+=1
+    print(keynumdict)
+def addkeylink():
+    client = MongoClient()
+    db = client['NongGuanJia']
+    pcoll = db['NongGuanJiaByProblem']
+    cursor = pcoll.find()
+    for document in cursor:
+        if document['keywordNum']==0:
+            continue
+        else:
+            for answer in document['reply']:
+                if len(answer['keyword'])==0:
+                    continue
+                else:
+                    for keyword in answer['keyword']:
+                        if keyword['type']=='zbbh':
+                            keyword['link']='http://ngjv4.laodao.so/api/pub/cropdisease.ashx?action=info&disid='+str(keyword['keyvalue'])
+                        else:
+                            keyword['link']='http://ngjv4.laodao.so/ashx/dd/dd_DifficultDis.ashx?action=info&ID='+str(keyword['keyvalue'])
+            pcoll.update_one(
+                        {"_id":document["_id"]},
+                        {
+                            "$set": {
+                                "reply": document['reply']
+                            }
+                        }
 
+                    )
+def updateuser():
+    ucoll=db['NongGuanJiaByUser']
+    cursor = ucoll.find()
+    for document in cursor:
+        if len(document['Question'])==0:
+            continue
+        else:
+            questions = document['Question']
+            for question in document['Question']:
+                index=document['Question'].index(question)
+                question['keywordNum']=0
+                if len(question['reply']) > 0:
+                    for reply in question['reply']:
+                        if len(reply['keyword']) > 0:
+                            for keyword in reply['keyword']:
+                                 question['keywordNum'] +=1
+                    ucoll.update_one(
+                        {"_id":document["_id"]},
+                        {
+                            "$set": {
+                                'Question.'+str(index)+'.keywordNum': question['keywordNum']
+                            }
+                        }
 
-
-
-
-
-
-
-
-
-
-
-# newcoll=db['NongGuanJiaByProblem']
-# nncoll=db['NongGuanJiaByProblemNew']
-# nnn=db['NongGuanJiaByPNew']
-# cursor=newcoll.find()
-# qids=[]
-#
-# for document in cursor:
-#     qids.append(document['qid'])
-# print(len(qids))
-# newqids = list(set(qids))
-# print(len(newqids))
-    # if len(document['Question'])>0:
-    #     for question in document['Question']:
-    #         nnn.insert_one(question)
-
-# for document in cursor:
-#     if len(document['Question'])>0:
-#         #value=0
-#         for question in document['Question']:
-#             if question['qid']==0:
-#                 #print(len(document['Question']))
-#                 document['Question'].remove(question)
-#                 #value=1
-#                 coll.update_one(
-#                     {"_id": document['_id']},
-#                     {"$set": {"Question": document['Question']}}
-#                 )
-#
-#                 print(document['_id'])
-        # if value==1:
-        #     nnn.insert_one(document)
-        # value=0
-       # print(len(document['Question']))
-    #print(document['qid'])
-    # if document['qid'] in qids:
-    #     if document['recount']==14:
-    #         print(document['question'])
-    #     continue
-    #nncoll.insert_one(document)
-    #qids.append(document['qid'])
-#
-# print(len(qids))
-# newqids = list(set(qids))
-# print(len(newqids))
-#     if len(document['Question'])>100:
-#         print(document['User'][0]['uid'])
-#         print(document['Question'])
-    #break
+                    )
+                else:
+                    pass
