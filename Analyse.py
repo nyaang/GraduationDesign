@@ -184,3 +184,59 @@ def updateuser():
                     )
                 else:
                     pass
+def exportdisater():
+    pcoll = db['NongGuanJiaByProblem']
+    ynzz, zbbh = [], []
+    cursor = pcoll.find()
+
+    for document in cursor:
+            if document['keywordNum'] > 0:
+                for reply in document['reply']:
+                    if len(reply['keyword']) > 0:
+                        for keyword in reply['keyword']:
+                            if keyword["type"] == "zbbh":
+                                zbbh.append({
+                                    "link":keyword["link"],
+                                    "keyword":keyword["keyword"]
+                                })
+                            elif keyword["type"] == "ynzz":
+                                ynzz.append({
+                                    "link":keyword["link"],
+                                    "keyword":keyword["keyword"]
+                                })
+    print(len(zbbh))
+    print(len(ynzz))
+    seen = set()
+    newzbbh=[]
+    for d in zbbh:
+        t = tuple(d.items())
+        if t not in seen:
+            seen.add(t)
+            newzbbh.append(d)
+    yseen=set()
+    newynzz = []
+    for d in ynzz:
+        t = tuple(d.items())
+        if t not in yseen:
+            yseen.add(t)
+            newynzz.append(d)
+    print(len(newzbbh))
+    print(len(newynzz))
+    import json
+    zbbhfile = open("./zbbhfile.json", 'w')
+    json.dump(
+        newzbbh,
+        zbbhfile,
+        indent=4,
+        sort_keys=False,
+        ensure_ascii=False)
+    zbbhfile.close()
+    ynzzfile = open("./ynzzfile.json", 'w')
+    json.dump(
+        newynzz,
+        ynzzfile,
+        indent=4,
+        sort_keys=False,
+        ensure_ascii=False)
+    ynzzfile.close()
+#exportdisater()
