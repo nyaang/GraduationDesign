@@ -4,8 +4,9 @@ import pymongo
 import time
 import json
 ua = UserAgent()
-DrugUrls="http://ngjv4.laodao.so/ashx/fm_DiseaseSolution.ashx?action=listapp&pagSize=500&pagIndex=1&SolutionSource=0&DiseaseID=2000"
-errorlinks=[]
+errorlinks = []
+
+
 class disater():
     def getrequest(self, url):
         # 使用随机的user-agent
@@ -30,7 +31,7 @@ class disater():
             r = self.getrequest(url)
             return r
 
-    def updaterrorlinks(self,url):
+    def updaterrorlinks(self, url):
         errorlinks.append(url)
         errorlinksfile = open("./errorlinks.json", 'w')
         json.dump(
@@ -45,70 +46,71 @@ class disater():
         try:
             data = r.json()
         except json.decoder.JSONDecodeError:
-            if r.status_code==500:
+            if r.status_code == 500:
                 print('error 500')
                 self.updaterrorlinks(url)
                 return 'error 500'
         return data
-    def crawlzbbh(self,urlid):
-        self.drugsurl = "http://ngjv4.laodao.so/ashx/fm_DiseaseSolution.ashx?action=listapp&pagSize=500&pagIndex=1&SolutionSource=0&DiseaseID="+urlid
-        self.url='http://ngjv4.laodao.so/api/pub/cropdisease.ashx?action=info&disid='+urlid
+
+    def crawlzbbh(self, urlid):
+        self.drugsurl = "http://ngjv4.laodao.so/ashx/fm_DiseaseSolution.ashx?action=listapp&pagSize=500&pagIndex=1&SolutionSource=0&DiseaseID=" + urlid
+        self.url = 'http://ngjv4.laodao.so/api/pub/cropdisease.ashx?action=info&disid=' + urlid
         self.headers = {"User-Agent": ''}
-        disater_r=self.getrequest(self.url)
-        disater_data=self.decodejson(disater_r,self.url)
-        if disater_data=='error 500':
+        disater_r = self.getrequest(self.url)
+        disater_data = self.decodejson(disater_r, self.url)
+        if disater_data == 'error 500':
             return
-        drug_r=self.getrequest(self.drugsurl)
-        drug_data=self.decodejson(drug_r,self.drugsurl)
-        if disater_data["code"]==200:
-            datas=disater_data["datas"]
-            self.CropID=datas["CropID"]
-            self.Name=datas["Name"]
+        drug_r = self.getrequest(self.drugsurl)
+        drug_data = self.decodejson(drug_r, self.drugsurl)
+        if disater_data["code"] == 200:
+            datas = disater_data["datas"]
+            self.CropID = datas["CropID"]
+            self.Name = datas["Name"]
         if len(drug_data["datas"]):
-            self.drugs=drug_data["datas"][0]["Drug"]
+            self.drugs = drug_data["datas"][0]["Drug"]
             client = pymongo.MongoClient('127.0.0.1:27017')
             db = client['NongGuanJia']
             db['NongGuanJiazbbh'].insert_one(
-                {"id":urlid,
+                {"id": urlid,
                  "Name": self.Name,
                  "CropID": self.CropID,
                  "Url": self.url,
                  "Drug": self.drugs,
-                 "Drugurl":self.drugsurl
+                 "Drugurl": self.drugsurl
                  })
-    def crawlynzz(self,url):
+
+    def crawlynzz(self, url):
         self.headers = {"User-Agent": ''}
         r = self.getrequest(url)
         data = self.decodejson(r, url)
-        keyword=data["datas"]["keyWord"]
-        reasons=data["datas"]["reasons"]
-        solution=data["datas"]["solution"]
-        CropClassID=data["datas"]["CropClassID"]
-        CropID=data["datas"]["CropID"]
+        keyword = data["datas"]["keyWord"]
+        reasons = data["datas"]["reasons"]
+        solution = data["datas"]["solution"]
+        CropClassID = data["datas"]["CropClassID"]
+        CropID = data["datas"]["CropID"]
         client = pymongo.MongoClient('127.0.0.1:27017')
         db = client['NongGuanJia']
         db['NongGuanJiaynzz'].insert_one(
             {"url": url,
              "keyword": keyword,
              "CropClassID": CropClassID,
-             "CropID":CropID,
+             "CropID": CropID,
              "reasons": reasons,
              "solution": solution
              })
 
+
 def zbbhstart():
-    d=disater()
+    d = disater()
     links = json.load(open("./zbbhfile.json", 'r'))
     for link in links:
         d.crawlzbbh(link['link'][66:])
     # 8421麦叶峰未解决
     # 8361大螟未解决
-    # d=disater()
-    # l=['11040','21952','8215','1121','10118','14875']
-    # for id in l:
-    #     d.crawlzbbh(id)
+
+
 def ynzzstart():
-    d=disater()
+    d = disater()
     links = json.load(open("./ynzzfile.json", 'r'))
     for link in links:
         d.crawlynzz(link["link"])
