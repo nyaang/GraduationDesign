@@ -74,7 +74,7 @@ cursor = pcoll.find()
 for document in cursor:
     try:
         if document['Name']!=None:
-            pass
+            continue
     except KeyError:
         cropname=crawler.updateCropName(str(document['qid']))
         pcoll.update_one(
