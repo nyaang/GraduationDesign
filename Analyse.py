@@ -197,3 +197,42 @@ def exportdisater():
         ensure_ascii=False)
     ynzzfile.close()
 # exportdisater()
+def countcrop():
+    pcoll = db['NongGuanJiaByProblem']
+    cursor = pcoll.find()
+    crops=[]
+    cropsdict={}
+    for document in cursor:
+        crops.append(document['Name'])
+    crops=list(set(crops))
+    for crop in crops:
+        cropsdict[crop]=0
+    cursor = pcoll.find()
+    for document in cursor:
+        cropsdict[document['Name']]+=1
+    print(cropsdict)
+countcrop()
+def judgecrop():
+    pcoll = db['NongGuanJiaByProblem']
+    cursor = pcoll.find()
+    for document in cursor:
+        if document['Name']=='植保':
+            if len(document['reply'])>0:
+                print(document['qid'])
+# judgecrop()
+def compareids():
+    pcoll=db['NongGuanJiaByProblem']
+    cropsids_p=[]
+    cursor = pcoll.find()
+    for document in cursor:
+        cropsids_p.append(document['cropid'])
+    cropsids_p=list(set(cropsids_p))
+    print(len(cropsids_p),cropsids_p)
+    zcoll=db['NongGuanJiazbbh']
+    cursor=zcoll.find()
+    cropsids_z=[]
+    for document in cursor:
+        cropsids_z.append(document['cropid'])
+    cropsids_z=list(set(cropsids_p))
+    print(len(cropsids_z),cropsids_z)
+# compareids()
