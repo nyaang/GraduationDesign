@@ -204,14 +204,25 @@ def countcrop():
     cropsdict={}
     for document in cursor:
         crops.append(document['Name'])
+        if document['Name']=='水果':
+            print(document['question'])
     crops=list(set(crops))
     for crop in crops:
         cropsdict[crop]=0
     cursor = pcoll.find()
     for document in cursor:
         cropsdict[document['Name']]+=1
-    print(cropsdict)
-countcrop()
+    cropsiddict={}
+    for crop in crops:
+        cropsiddict[crop]=[]
+    cursor = pcoll.find()
+    for document in cursor:
+        if document['cropid'] in cropsiddict[document['Name']]:
+            pass
+        else:
+            cropsiddict[document['Name']].append(document['cropid'])
+    print(cropsiddict)
+# countcrop()
 def judgecrop():
     pcoll = db['NongGuanJiaByProblem']
     cursor = pcoll.find()
@@ -232,7 +243,7 @@ def compareids():
     cursor=zcoll.find()
     cropsids_z=[]
     for document in cursor:
-        cropsids_z.append(document['cropid'])
+        cropsids_z.append(document['CropID'])
     cropsids_z=list(set(cropsids_p))
     print(len(cropsids_z),cropsids_z)
 # compareids()
