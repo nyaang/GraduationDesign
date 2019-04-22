@@ -203,25 +203,29 @@ def countcrop():
     crops=[]
     cropsdict={}
     for document in cursor:
-        crops.append(document['Name'])
-        if document['Name']=='水果':
-            print(document['question'])
+        try:
+            crops.append(document['NameFind'])
+        except KeyError:
+            crops.append(document['Name'])
     crops=list(set(crops))
     for crop in crops:
         cropsdict[crop]=0
     cursor = pcoll.find()
     for document in cursor:
-        cropsdict[document['Name']]+=1
-    cropsiddict={}
-    for crop in crops:
-        cropsiddict[crop]=[]
-    cursor = pcoll.find()
-    for document in cursor:
-        if document['cropid'] in cropsiddict[document['Name']]:
-            pass
-        else:
-            cropsiddict[document['Name']].append(document['cropid'])
-    print(cropsiddict)
+        try:
+            cropsdict[document['NameFind']]+=1
+        except KeyError:
+            cropsdict[document['Name']] += 1
+    # cropsiddict={}
+    # for crop in crops:
+    #     cropsiddict[crop]=[]
+    # cursor = pcoll.find()
+    # for document in cursor:
+    #     if document['cropid'] in cropsiddict[document['Name']]:
+    #         pass
+    #     else:
+    #         cropsiddict[document['Name']].append(document['cropid'])
+    print(cropsdict)
 # countcrop()
 def judgecrop():
     pcoll = db['NongGuanJiaByProblem']
@@ -247,3 +251,31 @@ def compareids():
     cropsids_z=list(set(cropsids_p))
     print(len(cropsids_z),cropsids_z)
 # compareids()
+
+def ShiJianFenBu():
+    pcoll=db['NongGuanJiaByProblem']
+    timelist,timedict=[],{}
+    cursor=pcoll.find()
+    for document in cursor:
+        # print(document['time'][11:13])
+        timelist.append(document['time'][11:13])
+    timelist=list(set(timelist))
+    timelist.sort()
+    print(timelist)
+    for t in timelist:
+        timedict[t]=0
+    cursor=pcoll.find()
+    for document in cursor:
+        timedict[document['time'][11:13]]+=1
+    print(timedict)
+# ShiJianFenBu()
+def userregion():
+    ucoll=db['NongGuanJiaByUser']
+    userlist,userdict=[],{}
+    cursor=ucoll.find()
+    for document in cursor:
+        # print(document['User'][0]['province'])
+        userlist.append(document['User'][0]['province'])
+    userlist=list(set(userlist))
+    print(userlist,len(userlist))
+# userregion()
