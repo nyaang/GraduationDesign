@@ -197,23 +197,25 @@ def exportdisater():
         ensure_ascii=False)
     ynzzfile.close()
 # exportdisater()
+
+
 def countcrop():
     pcoll = db['NongGuanJiaByProblem']
     cursor = pcoll.find()
-    crops=[]
-    cropsdict={}
+    crops = []
+    cropsdict = {}
     for document in cursor:
         try:
             crops.append(document['NameFind'])
         except KeyError:
             crops.append(document['Name'])
-    crops=list(set(crops))
+    crops = list(set(crops))
     for crop in crops:
-        cropsdict[crop]=0
+        cropsdict[crop] = 0
     cursor = pcoll.find()
     for document in cursor:
         try:
-            cropsdict[document['NameFind']]+=1
+            cropsdict[document['NameFind']] += 1
         except KeyError:
             cropsdict[document['Name']] += 1
     # cropsiddict={}
@@ -227,55 +229,59 @@ def countcrop():
     #         cropsiddict[document['Name']].append(document['cropid'])
     print(cropsdict)
 # countcrop()
+
+
 def judgecrop():
     pcoll = db['NongGuanJiaByProblem']
     cursor = pcoll.find()
     for document in cursor:
-        if document['Name']=='植保':
-            if len(document['reply'])>0:
+        if document['Name'] == '植保':
+            if len(document['reply']) > 0:
                 print(document['qid'])
 # judgecrop()
+
+
 def compareids():
-    pcoll=db['NongGuanJiaByProblem']
-    cropsids_p=[]
+    pcoll = db['NongGuanJiaByProblem']
+    cropsids_p = []
     cursor = pcoll.find()
     for document in cursor:
         cropsids_p.append(document['cropid'])
-    cropsids_p=list(set(cropsids_p))
-    print(len(cropsids_p),cropsids_p)
-    zcoll=db['NongGuanJiazbbh']
-    cursor=zcoll.find()
-    cropsids_z=[]
+    cropsids_p = list(set(cropsids_p))
+    print(len(cropsids_p), cropsids_p)
+    zcoll = db['NongGuanJiazbbh']
+    cursor = zcoll.find()
+    cropsids_z = []
     for document in cursor:
         cropsids_z.append(document['CropID'])
-    cropsids_z=list(set(cropsids_p))
-    print(len(cropsids_z),cropsids_z)
+    cropsids_z = list(set(cropsids_p))
+    print(len(cropsids_z), cropsids_z)
 # compareids()
 
+
 def ShiJianFenBu():
-    pcoll=db['NongGuanJiaByProblem']
-    timelist,timedict=[],{}
-    cursor=pcoll.find()
+    pcoll = db['NongGuanJiaByProblem']
+    timelist, timedict = [], {}
+    cursor = pcoll.find()
     for document in cursor:
-        # print(document['time'][11:13])
         timelist.append(document['time'][11:13])
-    timelist=list(set(timelist))
-    timelist.sort()
+    timelist = sorted(set(timelist))
     print(timelist)
     for t in timelist:
-        timedict[t]=0
-    cursor=pcoll.find()
+        timedict[t] = 0
+    cursor = pcoll.find()
     for document in cursor:
-        timedict[document['time'][11:13]]+=1
+        timedict[document['time'][11:13]] += 1
     print(timedict)
 # ShiJianFenBu()
+
+
 def userregion():
-    ucoll=db['NongGuanJiaByUser']
-    userlist,userdict=[],{}
-    cursor=ucoll.find()
+    ucoll = db['NongGuanJiaByUser']
+    userlist, userdict = [], {}
+    cursor = ucoll.find()
     for document in cursor:
-        # print(document['User'][0]['province'])
         userlist.append(document['User'][0]['province'])
-    userlist=list(set(userlist))
-    print(userlist,len(userlist))
+    userlist = list(set(userlist))
+    print(userlist, len(userlist))
 # userregion()

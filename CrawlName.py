@@ -4,10 +4,13 @@ from pymongo import MongoClient
 import time
 import json
 ua = UserAgent()
-errorlinks=[]
+errorlinks = []
+
+
 class NongGuanJia():
     def __init__(self):
         self.headers = {"User-Agent": ''}
+
     def getrequest(self, url):
         # 使用随机的user-agent
         self.headers["User-Agent"] = ua.random
@@ -47,15 +50,17 @@ class NongGuanJia():
             data = r.json()
             return data
         return data
-    def updateCropName(self,qid):
-        url='http://ngjv4.laodao.so/ASHX/bbs_card.ashx?action=replylist&version=pc&ID='+qid+'&pagSize=20&pagindex=1'
-        r=self.getrequest(url)
-        data=self.decodejson(r,url)
+
+    def updateCropName(self, qid):
+        url = 'http://ngjv4.laodao.so/ASHX/bbs_card.ashx?action=replylist&version=pc&ID=' + \
+            qid + '&pagSize=20&pagindex=1'
+        r = self.getrequest(url)
+        data = self.decodejson(r, url)
         rcode = data["code"]
         if (rcode == 200):
             return data['message']['Name']
         else:
-            print('error link:'+url)
+            print('error link:' + url)
             errorlinks.append(url)
             import json
             errorlinkstocrawl = open("./errorlinkstocrawl.json", 'w')
@@ -66,19 +71,21 @@ class NongGuanJia():
                 sort_keys=False,
                 ensure_ascii=False)
             errorlinkstocrawl.close()
-crawler=NongGuanJia()
+
+
+crawler = NongGuanJia()
 client = MongoClient()
 db = client['NongGuanJia']
-pcoll=db['NongGuanJiaByProblem']
+pcoll = db['NongGuanJiaByProblem']
 cursor = pcoll.find()
 for document in cursor:
     try:
-        if document['Name']!=None:
+        if document['Name'] is not None:
             continue
     except KeyError:
-        cropname=crawler.updateCropName(str(document['qid']))
+        cropname = crawler.updateCropName(str(document['qid']))
         pcoll.update_one(
-            {"_id":document["_id"]},
+            {"_id": document["_id"]},
             {
                 "$set": {
                     "Name": cropname

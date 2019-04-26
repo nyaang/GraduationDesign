@@ -98,38 +98,3 @@ def drawKeywordNumB():
     plt.legend()
     plt.show()
 # drawKeywordNumB()
-
-
-def drawPnumByMonth():
-    from pymongo import MongoClient
-    import matplotlib.pyplot as plt
-    from pylab import mpl
-    from pandas import Series
-    import pandas as pd
-    mpl.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
-    mpl.rcParams['axes.unicode_minus'] = False
-    client = MongoClient()
-    db = client['NongGuanJia']
-    pcoll = db['NongGuanJiaByProblem']
-    cursor = pcoll.find()
-    MonthNumList = {'pad': ['1', '1', '2']}
-    # for document in cursor:
-    #     #print()
-    #     MonthNumList.append(document['time'][:7])
-    #pdMonthNumList = Series(MonthNumList)
-    df = pd.DataFrame(MonthNumList)
-    pdMonthNumList = df.groupby('pad').mean().sort_values(ascending=False)
-    print(type(pdMonthNumList))
-    #mean_keywordNum = pdMonthNumList.mean()
-    # pdMonthNumListSorted=pdMonthNumList.groupby()
-    pdMonthNumList.plot(kind='bar', color='b')
-    #plt.xlim(0, 71)
-    plt.ylim(0, 2)
-    plt.title("keyword数量分步")
-    plt.xlabel("keyword数量")
-    plt.ylabel("keyword数量分步数")
-    #plt.hist(pdMonthNumList, bins=60)
-    #plt.vlines(mean_keywordNum, 0, 500, color='red', label='平均keyword数量', linewidth=1.5, linestyle='--')
-    plt.legend()
-    plt.show()
-# drawPnumByMonth()
