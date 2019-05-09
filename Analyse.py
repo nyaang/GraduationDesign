@@ -285,3 +285,23 @@ def userregion():
     userlist = list(set(userlist))
     print(userlist, len(userlist))
 # userregion()
+
+def user_problem():
+    f=open('Result/node_vectors.txt','r')
+    lines=f.readlines()
+    userfile=open('user_vectors.txt','w')
+    problemfile=open('problem_vectors.txt','w')
+    uservectors,problemvectors=[],[]
+    for i in range(1,len(lines)):
+        # print(lines[i])
+        vector=lines[i].split()
+        if int(vector[0])<140000:
+            uservectors.append(lines[i])
+        else:
+            problemvectors.append(lines[i])
+    userfile.writelines(uservectors)
+    problemfile.writelines(problemvectors)
+    userfile.close()
+    problemfile.close()
+    print(len(uservectors),len(problemvectors))
+    f.close()

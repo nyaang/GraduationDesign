@@ -71,7 +71,7 @@ class recommendation():
 
 
 r=recommendation()
-for i in range(500):
+for i in range(1):
     r.recommend()
 # print(uservectordict['36761'])
 # 每次推荐20个视频，每次推荐三十个用户，记录每个用户的准确率，每次推荐的评价准确率
