@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>农管家问题推荐实现——登录页面</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+<p><a href="http://www.laodao.so">返回首页</a></p>
+    <legend>请先登录</legend>
+ <form action="/login" method="post">
+    <legend>Please sign in:</legend>
+    <p><input name="usernamelogin" placeholder="Username" value="{{ loginusername }}"></p>
+    <p><input name="passwordlogin" placeholder="Password" type="password"></p>
+    <p><button type="submit">Sign In</button></p>
+  </form>
+</body>
+</html>

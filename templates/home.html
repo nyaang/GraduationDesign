@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>农管家问题推荐实现——问题页面</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+    <p>
+        id为{{uid}}的，用户您好，以下问题等你来答
+    </p>
+<table>
+    <tr>
+        <td>问题ID</td><td>提问时间</td><td>问题内容</td><td>作物</td>
+    </tr>
+          {% for question in questions %}
+     <tr>
+        <td><a href={{question['url']}}>{{ question['qid'] }}</a></td><td>{{ question['time'] }}</td><td>{{ question['question'] }}</td><td>{{ question['Name'] }}</td>
+         </tr>
+      {% endfor %}
+
+
+</table>
+</body>
+</html>

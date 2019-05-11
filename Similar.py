@@ -1,7 +1,7 @@
 ﻿import math,random,threading
 class recommendation():
     def __init__(self):
-        userfile=open('user_vectors.txt','r')
+        userfile=open('./Result/user_vectors_node2vec.txt','r')
         uservectors=userfile.readlines()
         self.uservectordict,self.uservectorlist={},[]
         for uservector in uservectors:
@@ -10,7 +10,7 @@ class recommendation():
             self.uservectorlist.append(vector[0])
         userfile.close()
 
-        problemfile = open('problem_vectors.txt', 'r')
+        problemfile = open('./Result/problem_vectors_node2vec.txt', 'r')
         problemvectors=problemfile.readlines()
         self.problemvectordict,self.problemvectorlist={},[]
         for problemvector in problemvectors:
@@ -19,7 +19,7 @@ class recommendation():
             self.problemvectorlist.append(vector[0])
         problemfile.close()
 
-        hin2vecfile=open('hin2vecdata_U_cleaned.txt','r')
+        hin2vecfile=open('./Result/hin2vecdata_cleaned.txt','r')
         u_pvecs=hin2vecfile.readlines()
         hin2vecfile.close()
         self.user_problem,uidlist={},[]
@@ -79,9 +79,9 @@ class recommendation():
         similarvallist.reverse()
         recommend_problems=[]
         for problemvectorid in self.problemvectorlist:
-            if similarvaldict[problemvectorid]>=similarvallist[0]:  #0改成4，推荐5个问题
+            if similarvaldict[problemvectorid]>=similarvallist[4]:  #0改成4，推荐5个问题
                 recommend_problems.append(problemvectorid)
-                print(len(recommend_problems))
+        print(len(recommend_problems))
         return recommend_problems
 
 class recommendstart(threading.Thread):
@@ -98,4 +98,4 @@ def start(threadnum):
     for i in range(threadnum):
         recommendlist[i].start()
 
-start(5)
+# start(5)
