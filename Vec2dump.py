@@ -80,7 +80,7 @@ def dataclean():
     # problemlist.sort()
     # left_problems=0
     # for problemid in problemlist:
-    #     if len(problem_user[problemid])>12:
+    #     if len(problem_user[problemid])>14:
     #         left_problems+=1
     #         for userid in problem_user[problemid]:
     #             cleanproblemfile.write(str(problemid) + '	Q	' + str(userid) + '	U	Q-U\n')
@@ -160,14 +160,14 @@ def dataclean():
         vectornums+=len(user_problem[uid])
         for pid in user_problem[uid]:
             # node2vecfile.write(uid+' '+pid+'\n')
-    # node2vecfile.close()
             problems.append(pid)
+    # node2vecfile.close()
     problems=list(set(problems))
     print(len(uidlist),len(problems),len(uidlist)+len(problems),vectornums)
 
 # dataclean()
 def user_problem():
-    f=open('Result/node_vectors.txt','r')
+    f=open('node_vectors.txt','r')
     lines=f.readlines()
     f.close()
     userfile=open('user_vectors.txt','w')

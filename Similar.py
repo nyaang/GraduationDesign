@@ -1,4 +1,4 @@
-﻿import math,random
+﻿import math,random,threading
 class recommendation():
     def __init__(self):
         userfile=open('user_vectors.txt','r')
@@ -19,7 +19,7 @@ class recommendation():
             self.problemvectorlist.append(vector[0])
         problemfile.close()
 
-        hin2vecfile=open('Result/hin2vecdata_U_cleaned.txt','r')
+        hin2vecfile=open('hin2vecdata_U_cleaned.txt','r')
         u_pvecs=hin2vecfile.readlines()
         hin2vecfile.close()
         self.user_problem,uidlist={},[]
@@ -27,7 +27,6 @@ class recommendation():
         for i in range(0,len(u_pvecs)):
             u_pvec=u_pvecs[i].split()
             uidlist.append(u_pvec[0])
-        # print(len(u_pveclist))
         uidlist=list(set(uidlist))
         for uid in uidlist:
             self.user_problem[uid]=[]
@@ -35,8 +34,10 @@ class recommendation():
             u_pvec=u_pvecs[i].split()
             self.user_problem[u_pvec[0]].append(u_pvec[2])
     def recommend(self):
+        recommendfile=open('node2vecrecommed.txt','a')
+        recommendfiledetails=open('node2vecrecommeddetails.txt','a')
         uids_recommend=[]
-        for i in range(30):
+        for i in range(2):
             uids_recommend.append(random.choice(self.uservectorlist))
         successes,precisions,recalls=[],[],[]
         for uid in uids_recommend:
@@ -51,8 +52,11 @@ class recommendation():
             precisions.append(precision)
             recalls.append(recall)
             print(success,precision,recall)
+            recommendfiledetails.write(uid+' '+str(precision)+' '+str(recall)+'\n')
         print(float(sum(successes))/len(successes),float(sum(precisions))/len(precisions),float(sum(recalls))/len(recalls))
-
+        recommendfile.write(str(float(sum(precisions))/len(precisions))+' '+str(float(sum(recalls))/len(recalls))+'\n')
+        recommendfile.close()
+        recommendfiledetails.close()
     def getsimilarval(self,uservector,problemvector):
         vectorlength=len(uservector)
         fenzi,fenmu,Xi2sum,Yi2sum = 0.0,0.0,0.0,0.0
@@ -62,7 +66,6 @@ class recommendation():
             Xi2sum+=Xi*Xi
             Yi2sum+=Yi*Yi
         fenmu=math.sqrt(Xi2sum)*math.sqrt(Yi2sum)
-        # print(fenzi/fenmu)
         return fenzi/fenmu
     def similar(self,uservectorid):
         uservector=self.uservectordict[uservectorid]
@@ -70,22 +73,29 @@ class recommendation():
         for problemvectorid in self.problemvectorlist:
             problemvector=self.problemvectordict[problemvectorid]
             similarval=self.getsimilarval(uservector,problemvector)
-            # for i in range(100):
-            #     similarval=similarval+math.pow(abs(float(uservector[i])-float(problemvector[i])),100)
-
             similarvallist.append(similarval)
             similarvaldict[problemvectorid]=similarval
         similarvallist.sort()
         similarvallist.reverse()
         recommend_problems=[]
         for problemvectorid in self.problemvectorlist:
-            if similarvaldict[problemvectorid]>=similarvallist[11]:
+            if similarvaldict[problemvectorid]>=similarvallist[0]:  #0改成4，推荐5个问题
                 recommend_problems.append(problemvectorid)
+                print(len(recommend_problems))
         return recommend_problems
 
+class recommendstart(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.r=recommendation()
+    def run(self):
+        for i in range(5):  #预计做1000次实验
+            self.r.recommend()
+def start(threadnum):
+    recommendlist=[]
+    for i in range(threadnum):
+        recommendlist.append(recommendstart())
+    for i in range(threadnum):
+        recommendlist[i].start()
 
-r=recommendation()
-for i in range(5):
-    r.recommend()
-# print(uservectordict['36761'])
-# 每次推荐20个视频，每次推荐三十个用户，记录每个用户的准确率，每次推荐的评价准确率
+start(5)
