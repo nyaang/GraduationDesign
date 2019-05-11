@@ -64,7 +64,7 @@ def dataclean():
     # for i in range(1, len(u_pvecs)):
     #     u_pvec = u_pvecs[i].split()
     #     problem_user[u_pvec[2]].append(u_pvec[0])
-
+    #
     # lendict,lenlist={},[]
     # for pid in problemlist:
     #     lenlist.append(len(problem_user[pid]))
@@ -75,19 +75,19 @@ def dataclean():
     # for pid in problemlist:
     #     lendict[len(problem_user[pid])]+=1
     # print(lendict)
-
+    #
     # cleanproblemfile=open('hin2vecdata_P_cleaned.txt','w')
     # problemlist.sort()
     # left_problems=0
     # for problemid in problemlist:
-    #     if len(problem_user[problemid])>5:
+    #     if len(problem_user[problemid])>12:
     #         left_problems+=1
     #         for userid in problem_user[problemid]:
     #             cleanproblemfile.write(str(problemid) + '	Q	' + str(userid) + '	U	Q-U\n')
     # print(left_problems)
     # cleanproblemfile.close()
-
-
+    #
+    #
     # cleanproblemfile=open('hin2vecdata_P_cleaned.txt','r')
     # u_pvecs = cleanproblemfile.readlines()
     # cleanproblemfile.close()
@@ -136,29 +136,40 @@ def dataclean():
 
     hin2vecfile = open('hin2vecdata_U_cleaned.txt', 'r')
     u_pvecs = hin2vecfile.readlines()
+    hin2vecfile.close()
     user_problem,uidlist={},[]
     for i in range(1, len(u_pvecs)):
         u_pvec = u_pvecs[i].split()
         uidlist.append(u_pvec[0])
-    # print(len(u_pveclist))
     uidlist = list(set(uidlist))
     for uid in uidlist:
         user_problem[uid] = []
-    for i in range(1, len(u_pvecs)):
+    for i in range(0, len(u_pvecs)):
         u_pvec = u_pvecs[i].split()
         user_problem[u_pvec[0]].append(u_pvec[2])
     problems,vectornums=[],0
+    # node2vecfile = open('node2vecdata_cleaned.txt', 'w')
+    uidlist_copy=[]
+    for uid in uidlist:
+        uidlist_copy.append(int(uid))
+    uidlist_copy.sort()
+    uidlist=[]
+    for uid in uidlist_copy:
+        uidlist.append(str(uid))
     for uid in uidlist:
         vectornums+=len(user_problem[uid])
         for pid in user_problem[uid]:
+            # node2vecfile.write(uid+' '+pid+'\n')
+    # node2vecfile.close()
             problems.append(pid)
     problems=list(set(problems))
-    print(len(uidlist),len(problems),vectornums)
+    print(len(uidlist),len(problems),len(uidlist)+len(problems),vectornums)
 
 # dataclean()
 def user_problem():
     f=open('Result/node_vectors.txt','r')
     lines=f.readlines()
+    f.close()
     userfile=open('user_vectors.txt','w')
     problemfile=open('problem_vectors.txt','w')
     uservectors,problemvectors=[],[]
@@ -174,4 +185,4 @@ def user_problem():
     userfile.close()
     problemfile.close()
     print(len(uservectors),len(problemvectors))
-    f.close()
+# user_problem()
