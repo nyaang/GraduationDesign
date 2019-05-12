@@ -285,3 +285,15 @@ def userregion():
     userlist = list(set(userlist))
     print(userlist, len(userlist))
 # userregion()
+
+def countavgp_r():
+    resultfile=open('Result/recommed_hin2vec 1.txt','r')
+    results=resultfile.readlines()
+    resultfile.close()
+    precisions,recalls=[],[]
+    for result in results:
+        result=result.split()
+        precisions.append(float(result[0]))
+        recalls.append(float(result[1]))
+    print(float(sum(precisions))/len(precisions),float(sum(recalls))/len(recalls))
+countavgp_r()
