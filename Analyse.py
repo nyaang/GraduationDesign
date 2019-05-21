@@ -286,14 +286,64 @@ def userregion():
     print(userlist, len(userlist))
 # userregion()
 
+
 def countavgp_r():
-    resultfile=open('Result/recommed_hin2vec 1.txt','r')
-    results=resultfile.readlines()
+    resultfile = open('Result/recommed_hin2vec 1.txt', 'r')
+    results = resultfile.readlines()
     resultfile.close()
-    precisions,recalls=[],[]
+    precisions, recalls = [], []
     for result in results:
-        result=result.split()
+        result = result.split()
         precisions.append(float(result[0]))
         recalls.append(float(result[1]))
-    print(float(sum(precisions))/len(precisions),float(sum(recalls))/len(recalls))
-countavgp_r()
+    print(
+        float(
+            sum(precisions)) /
+        len(precisions),
+        float(
+            sum(recalls)) /
+        len(recalls))
+# countavgp_r()
+
+
+def count_user():
+    ucoll = db['NongGuanJiaByUser']
+    cursor = ucoll.find()
+    rvallist, qvallist = [], []
+    for document in cursor:
+        rvallist.append(document['User'][0]['rcount'])
+        qvallist.append(document['User'][0]['qcount'])
+    rvallist, qvallist = list(set(rvallist)), list(set(qvallist))
+    cursor = ucoll.find()
+    rvaldict, qvaldict = {}, {}
+    for rval in rvallist:
+        rvaldict[rval] = 0
+    for qval in qvallist:
+        qvaldict[qval] = 0
+    for document in cursor:
+        rvaldict[document['User'][0]['rcount']] += 1
+        qvaldict[document['User'][0]['qcount']] += 1
+    print(rvaldict, qvaldict)
+# count_user()
+
+
+def count_problem():
+    pcoll = db['NongGuanJiaByProblem']
+    cursor = pcoll.find()
+    rvallist = []
+    for document in cursor:
+        rvallist.append(len(document['reply']))
+
+    rvallist = list(set(rvallist))
+    cursor = pcoll.find()
+    rvaldict = {}
+    for rval in rvallist:
+        rvaldict[rval] = 0
+
+    for document in cursor:
+        rvaldict[len(document['reply'])] += 1
+
+    print(rvaldict)
+
+
+count_problem()
