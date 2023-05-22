@@ -22,4 +22,4 @@ pymongo == 3.7.2
 # CrawDisaster.py: 2
 # Crawl.py: 2
 # CrawlName.py: 2
-requests == 2.21.0
+requests == 2.31.0
